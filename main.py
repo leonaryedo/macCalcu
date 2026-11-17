@@ -5,14 +5,17 @@ AI가 계산하는 방식을 흉내 내는 작은 계산기 (MAC 연산)
 
 import json
 import os
-import re
-import time
+import re      #파이썬에 기본으로 포함된 졍규표현식(문자열 패턴 검색) 모듈임
+import time    #time은 경과시간측정, 대기 같은 작업용  datetime은 날짜와 시간 표현 및 계산 작업용
 
-EPS = 1e-9
+EPS = 1e-9     #1 × 10⁻⁹ = 0.000000001, 현재 코드에서는 아주 작은 오차로 decide 함수는 두 점수의 차이가 0.000000001보다 작으면 부동소수점 오차 등을 고려해 동점으로 판정
 REPEAT = 10
 DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data.json")
+#__file__은 현재 실행 중인 파이썬 파일의 경로, os.path.abspath()는 절대경로로 변환
+#os.path.dirname(...) — 파일 경로에서 폴더 경로만 추출, os.path.join(..., "data.json") — 그 폴더 경로에 data.json을 붙임
 
-# 모드 1 / 성능 분석용 3x3 기본 필터·패턴
+
+# 모드 1 / 성능 분석용 3x3 기본 필터·패턴 / 십자가와 X자 필터
 CROSS_3 = [
     [0.0, 1.0, 0.0],
     [1.0, 1.0, 1.0],
@@ -27,16 +30,17 @@ X_3 = [
 
 def mac(pattern, filt):
     """패턴과 필터를 위치별 곱한 뒤 모두 더한다 (Multiply-Accumulate)."""
+    #여기에서 패개변수는 모두 nxn행렬 즉, 2차원 배열의 값이다. 
     total = 0.0
-    n = len(pattern)
-    for i in range(n):
+    n = len(pattern)   #len(리스트)는 가장 바깥쪽 리스트에 들어 있는 항목 수를 반환, 행렬에서는 행의 수
+    for i in range(n):       #이중for문을 이용한 MAC연산, 예: 구구단
         for j in range(n):
             total += pattern[i][j] * filt[i][j]
     return total
 
 
 def normalize_label(raw):
-    """입력 라벨을 표준 라벨(Cross / X)로 정규화한다."""
+    """입력 라벨 즉, 다양하게 입력되는 값을 표준 라벨(Cross / X)로 정규화(정해진 값으로 바꿈)한다."""
     if raw is None:
         return None
     key = str(raw).strip().lower()
@@ -45,23 +49,24 @@ def normalize_label(raw):
         "cross": "Cross",
         "x": "X",
     }
-    return mapping.get(key)
+    return mapping.get(key)     #딕셔너리의 .get(key)는 그 키에 저장된 값을 반환합니다. 예: mapping.get("cross") → "Cross", 없는 키(예: apping.get("circle") → None 반환 또는 없는 키일 때 다른 값을 원하면 .get(key, 기본값)처럼 쓸 수도 있어요. 예를 들어 mapping.get("circle", "알 수 없음")은 "알 수 없음"을 반환
 
 
 def decide(score_a, score_b, label_a="A", label_b="B", undecided="UNDECIDED"):
     """
-    epsilon 기반 점수 비교.
+    epsilon(허용오차) 기반 점수 비교.
     |score_a - score_b| < EPS 이면 동점(undecided).
     """
     if abs(score_a - score_b) < EPS:
         return undecided
-    return label_a if score_a > score_b else label_b
+    return label_a if score_a > score_b else label_b  #조건표현식 또는 삼항연산자라고 한다. 
 
 
 def shapes_ok(matrix, n):
     """n×n 행렬인지 검증한다."""
-    if not isinstance(matrix, list) or len(matrix) != n:
-        return False
+    #early return 방식으로 문제가 있으면 바로 중단하고 마지막 까지 살아남으면 유효하다고 판단. 잘못된 입력을 빠르게 걸러냄.
+    if not isinstance(matrix, list) or len(matrix) != n:  #isinstance(matrix, list): matrix가 리스트인지 확인
+        return False               #or는 앞 조건이 참이면 뒤 조건을 검사하지 않음
     for row in matrix:
         if not isinstance(row, list) or len(row) != n:
             return False
@@ -74,34 +79,34 @@ def read_matrix(n, title):
         print(f"{title} ({n}줄 입력, 공백 구분)")
         rows = []
         ok = True
-        for _ in range(n):
+        for _ in range(n):       #_는 “반복할 때 생기는 값을 사용하지 않는다”는 관례적인 변수 이름
             try:
                 line = input()
-            except EOFError:
+            except EOFError:   #EOFError는 입력의 끝 종료 표시 = Ctrl+D 즉, 터미널에서 더이상 입력이 없다는 표시. 보통 보통 실행 중인 프로그램을 강제로 중단하는 Ctrl+C와는 다름.
                 ok = False
-                break
-            parts = line.split()
+                break          #break: 현재 반복문을 완전히 빠져나옵니다. continue: 현재 반복에서 남은 코드를 건너뛰고 다음 반복으로 넘어갑니다.
+            parts = line.split()  #문자열은 split()메서드를 가지고 있으며, line.split()은 그 문자열을 공백 기준으로 나눈 새 리스트를 반환
             if len(parts) != n:
                 ok = False
                 # 남은 줄이 있어도 무시하고 재입력 유도
                 break
             try:
-                rows.append([float(x) for x in parts])
+                rows.append([float(x) for x in parts])   #[float(x) for x in parts]는 문자열 리스트의 값을 float값으로 바꾸어 리스트에 재저장, 이후에 rows.append()함.
             except ValueError:
                 ok = False
                 break
         if ok and len(rows) == n:
-            return rows
-        print(f"입력 형식 오류: 각 줄에 {n}개의 숫자를 공백으로 구분해 입력하세요.")
+            return rows          #return은 함수의 종료임.
+        print(f"입력 형식 오류: 각 줄에 {n}개의 숫자를 공백으로 구분해 입력하세요.")  #for문에서 break될 때 마다 실행 됨.
 
 
 def measure_mac(pattern, filt, repeats=REPEAT):
     """MAC 연산만 반복 측정해 평균 시간(ms)을 반환한다 (I/O 제외)."""
-    t0 = time.perf_counter()
+    t0 = time.perf_counter()  #time모듈의 perf_counter()함수는 경과 시간을 계산하기 위한 정밀한 타이머 값임.
     for _ in range(repeats):
         mac(pattern, filt)
-    elapsed = time.perf_counter() - t0
-    return (elapsed / repeats) * 1000.0
+    elapsed = time.perf_counter() - t0 #이런 식으로 경과된 값을 구한다.
+    return (elapsed / repeats) * 1000.0  #elapsed = time.perf_counter() - t0는 초 단위로 반환하기에 1000을 곱해서 ms단위로 반환, 즉 1s*1000=1000ms
 
 
 def print_perf_table(rows):
