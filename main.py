@@ -232,6 +232,19 @@ def load_filters(data):
         elif ok:
             print(f"! {size_key}: Cross/X 필터가 모두 없어 건너뜀")
     return loaded
+    """
+    loaded가 딕셔너리 형태로 아래와 같음
+        {
+        3: {
+            "Cross": [[...], [...], [...]],
+            "X":     [[...], [...], [...]]
+        },
+        5: {
+            "Cross": [[...], ...],
+            "X":     [[...], ...]
+        }
+    }
+    """
 
 
 def mode2_json_analysis():
@@ -264,9 +277,35 @@ def mode2_json_analysis():
     samples = {3: (CROSS_3, CROSS_3)}
 
     for case_id in sorted(patterns.keys(), key=lambda k: (parse_size_from_key(k) or 0, k)):
+        """
+        sorted()는 반복 가능한 자료형의 값들을 정렬해서 새 리스트로 반환하는 파이썬 내장 함수로 기본적으로 숫자는 작은 순서대로, 문자열은 사전식 순서대로 정렬
+        numbers = [3, 1, 2]
+        result = sorted(numbers)
+        print(result)   # [1, 2, 3]
+   
+        sorted(정렬할_대상, key=정렬_기준)으로, 
+        첫 번째 인자: 정렬할 대상, key에 전달하는 값: 각 항목의 정렬 기준을 계산하는 함수로 정렬할 대상들을 key 함수에 전달하여 반환값을 기준(숫자면 작은 순, 문자면 사전식 순)으로 정렬할 대상을 정렬하는 방식
+        그런데 만약 key=정렬 기준이 두 개 앞은 첫번째 기준이 되고 두 번째는 첫 번째 기준이 같을 때 두 번째 기준으로 정렬하는 방식으로 사용 가능 
+
+        patterns.keys()는 data.json의 patterns 키에 있는 모든 케이스 키를 가져옴
+        key=lambda k: (parse_size_from_key(k) or 0, k)에서 lambda는 익명 함수(이름 없는 함수)로, 매개변수(k를) 입력받아 : 계산식(parse_size_from_key(k) or 0, k) 계산하여 반환하는 함수임. 
+         ( a or 0, "size_13_1")에서 or는 왼쪽 값이 None 같은 “거짓으로 취급되는 값”이면 오른쪽 값을 사용하기에 a에 거짓으로 취급되는 값이 오면 or 때문에만약 추출 실패 시 0으로 처리하여 정렬 기준으로 삼음. 그리고 처음 기준이 같으면 두 번째 기준으로는 케이스 키 자체를 사용하여 사전식 순서로 정렬함.
+        """
         total += 1
         case = patterns[case_id]
         print(f"--- {case_id} ---")
+        """
+                case = {
+            "input": [
+                [1.0, 0.0, 0.0, 0.0, 1.0],
+                [0.0, 1.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 1.0, 0.0],
+                [1.0, 0.0, 0.0, 0.0, 1.0]
+            ],
+            "expected": "x"
+        }
+        """
 
         n = parse_size_from_key(case_id)
         if n is None:
