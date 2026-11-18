@@ -175,24 +175,47 @@ def parse_size_from_key(key):
     """패턴 키 'size_13_1'에서 N=13을 추출한다. 즉, data.json에서 정규표현식을 이용해서 patterns 키에서 size_N_xxx에서 N을 추출하는 용도임."""
     m = re.match(r"size_(\d+)_\d+", key)
     return int(m.group(1)) if m else None
+    """
+    m.group(0)  # "size_13_1" 전체 매치
+    m.group(1)  # "13" 즉, 괄호로 캡처한 첫 번째 그룹
+
+    """
 
 
 def load_filters(data):
     """
-    filters.size_N 의 cross/x 를 표준 라벨로 정규화해 로드한다.
-    반환: {5: {"Cross": [...], "X": [...]}, ...}
+    data.json의 filters.size_N 의 cross/x 를 표준 라벨로 정규화해 로드한다.
+    그리고 마지막에는 다음과 같이 반환: {5: {"Cross": [...], "X": [...]}, ...}
     """
     loaded = {}
     filters = data.get("filters", {})
-    for size_key, pair in filters.items():
-        m = re.match(r"size_(\d+)$", size_key)
+    for size_key, pair in filters.items():   # for in 문은 for가 in 문은 in 뒤에 놓이는 시퀀스(리스트, 튜플, 문자열 등)의 각 항목을 순회하며 반복하는 구문입니다. 여기서는 filters.items()는 dict_items라는 객체로 딕셔너리의 키와 값 쌍이 튜플로 나열 되어 있음.
+        """
+        filters.items()는 즉, 딕셔너리값인 filters에서 키와 값 쌍을 하나씩 꺼내는 기능입니다.
+        
+        filters = {
+            "size_3": {"cross": [...], "x": [...]},
+            "size_5": {"cross": [...], "x": [...]},
+        }에서
+
+        ("size_3", {"cross": [...], "x": [...]})
+        ("size_5", {"cross": [...], "x": [...]})
+        값을 튜플로 꺼낸다.
+        """
+        m = re.match(r"size_(\d+)$", size_key)  #정규표현식에서 $은 문자열의 끝을 의미함. 즉, size_숫자 형태만 허용하고 size_숫자_숫자 형태는 허용하지 않음.
         if not m:
             print(f"! 알 수 없는 필터 키 무시: {size_key}")
             continue
         n = int(m.group(1))
         normalized = {}
         ok = True
-        for raw_label, matrix in pair.items():
+        for raw_label, matrix in pair.items():  
+            """
+            pair = {"cross": [...], "x": [...]}에서
+            ("cross", [...])
+            ("x", [...])
+            값을 튜플로 꺼낸다.
+            """
             label = normalize_label(raw_label)
             if label is None:
                 print(f"! {size_key}: 알 수 없는 필터 라벨 '{raw_label}'")
