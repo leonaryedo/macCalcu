@@ -106,14 +106,23 @@ def measure_mac(pattern, filt, repeats=REPEAT):
     for _ in range(repeats):
         mac(pattern, filt)
     elapsed = time.perf_counter() - t0 #이런 식으로 경과된 값을 구한다.
-    return (elapsed / repeats) * 1000.0  #elapsed = time.perf_counter() - t0는 초 단위로 반환하기에 1000을 곱해서 ms단위로 반환, 즉 1s*1000=1000ms
+    return (elapsed / repeats) * 1000.0  #elapsed = time.perf_counter() - t0는 초 단위로 반환하기에 1000을 곱해서 ms단위로 반환, 즉 1s*1000=1000ms. perf는 performance의 줄임말
 
 
 def print_perf_table(rows):
-    """크기 / 평균 시간(ms) / 연산 횟수(N²) 표 출력."""
-    print("크기       평균 시간(ms)    연산 횟수")
-    print("-------------------------------------")
+    """
+    3개의 값을 포함한 튜플이 리스트에 들어있음
+    rows = [
+        (100, 1.234, 10000),
+        (200, 4.567, 40000),
+    ]
+    """
     for size, avg_ms, ops in rows:
+        print(size, avg_ms, ops)
+        """크기 / 평균 시간(ms) / 연산 횟수(N²) 표 출력."""
+        print("크기       평균 시간(ms)    연산 횟수")
+        print("-------------------------------------")
+        for size, avg_ms, ops in rows:              #index가 나오는 것은 enumerate(rows)로 해야 함. 여기서는 unpacking(묶음 안의 값을 여러 변수에 각각 나눠 담는 것)을 이용해 바로 size, avg_ms, ops로 받음.
         print(f"{size:<10}{avg_ms:>10.3f}{ops:>12}")
 
 
@@ -141,7 +150,7 @@ def mode1_user_input():
 
     score_a = mac(pattern, filter_a)
     score_b = mac(pattern, filter_b)
-    avg_ms = measure_mac(pattern, filter_a)
+    avg_ms = measure_mac(pattern, filter_a)   #filter_b를 측정하지 않고 filter_a만 측정하는 이유는 두 필터의 크기가 같고 MAC연산이 동일한 연산이므로, 한 번만 측정해도 충분하다고 판단했기 때문임.
     verdict = decide(score_a, score_b, label_a="A", label_b="B", undecided="판정 불가")
 
     print("#---------------------------------------")
@@ -163,7 +172,7 @@ def mode1_user_input():
 
 
 def parse_size_from_key(key):
-    """패턴 키 'size_13_1'에서 N=13을 추출한다."""
+    """패턴 키 'size_13_1'에서 N=13을 추출한다. 즉, data.json에서 정규표현식을 이용해서 patterns 키에서 size_N_xxx에서 N을 추출하는 용도임."""
     m = re.match(r"size_(\d+)_\d+", key)
     return int(m.group(1)) if m else None
 
