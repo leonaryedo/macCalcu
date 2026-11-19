@@ -123,7 +123,7 @@ def print_perf_table(rows):
         print("크기       평균 시간(ms)    연산 횟수")
         print("-------------------------------------")
         for size, avg_ms, ops in rows:              #index가 나오는 것은 enumerate(rows)로 해야 함. 여기서는 unpacking(묶음 안의 값을 여러 변수에 각각 나눠 담는 것)을 이용해 바로 size, avg_ms, ops로 받음.
-        print(f"{size:<10}{avg_ms:>10.3f}{ops:>12}")
+            print(f"{size:<10}{avg_ms:>10.3f}{ops:>12}")
 
 
 def mode1_user_input():
@@ -254,7 +254,7 @@ def mode2_json_analysis():
     print("# [1] 필터 로드")
     print("#---------------------------------------")
 
-    if not os.path.isfile(DATA_PATH):
+    if not os.path.isfile(DATA_PATH):     #지정된 경로에 존재하는 것이 일반 파일인지 확인, 일반 파일이면 True 나머지 경우는 False
         print(f"오류: data.json을 찾을 수 없습니다 ({DATA_PATH})")
         return
 
@@ -315,7 +315,7 @@ def mode2_json_analysis():
             fail_list.append(f"{case_id}: {reason}")
             continue
 
-        if n not in filters_by_size:
+        if n not in filters_by_size:   # in 또는 not in 뒤에 딕셔너리가 오면 기본적으로 딕셔너리의 키를 확인
             failed += 1
             reason = f"size_{n} 필터 없음"
             print(f"판정: - | expected: - | FAIL ({reason})")
