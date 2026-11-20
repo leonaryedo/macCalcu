@@ -117,13 +117,11 @@ def print_perf_table(rows):
         (200, 4.567, 40000),
     ]
     """
-    for size, avg_ms, ops in rows:
-        print(size, avg_ms, ops)
-        """크기 / 평균 시간(ms) / 연산 횟수(N²) 표 출력."""
-        print("크기       평균 시간(ms)    연산 횟수")
-        print("-------------------------------------")
-        for size, avg_ms, ops in rows:              #index가 나오는 것은 enumerate(rows)로 해야 함. 여기서는 unpacking(묶음 안의 값을 여러 변수에 각각 나눠 담는 것)을 이용해 바로 size, avg_ms, ops로 받음.
-            print(f"{size:<10}{avg_ms:>10.3f}{ops:>12}")
+    """크기 / 평균 시간(ms) / 연산 횟수(N²) 표 출력."""
+    print("크기       평균 시간(ms)    연산 횟수")
+    print("-------------------------------------")
+    for size, avg_ms, ops in rows:              #index가 나오는 것은 enumerate(rows)로 해야 함. 여기서는 unpacking(묶음 안의 값을 여러 변수에 각각 나눠 담는 것)을 이용해 바로 size, avg_ms, ops로 받음.
+        print(f"{size:<10}{avg_ms:>10.3f}{ops:>12}")
 
 
 def mode1_user_input():
