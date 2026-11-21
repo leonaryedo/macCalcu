@@ -1,5 +1,18 @@
 # Mini NPU Simulator
 
+MAC(Multiply-Accumulate)연산이란 두 수를 곱하고, 기존 값에 더하기를 하는 연산입니다.
+보통 1번 MAC을 하면 한 번 곱하고 한 번 더하게 됩니다. 이를 1FLOPs(부동소수점연산)이라고 한다.
+
+즉, y = x*w + y 형태의 연산이 무수히 많이 벌어지기에 MAC연산이 중요하다.
+x = 입력값, w = 가중치, y = 결과
+
+보통 합성곱(Convolution), 행렬 곱셈(Matrix Multiplication)에서 많이 사용된다.
+
+CNN: 필터(가중치)를 입력 특징 맵 위에서 옮겨 다니며 대응 값끼리 곱해 더할 때 합성곱이 일어나고, 그 과정에서 MAC이 반복됩니다.
+<img width="1073" height="561" alt="image" src="https://github.com/user-attachments/assets/927a675c-c2b4-4410-b0bf-bbc13fe6719c" />
+신경망: 입력 데이터를 여러 층(Layer)을 거치며 변환해 예측 값을 만들어 내고(순전파), 정답과의 차이를 줄이도록 가중치를 조절해 가는(역전파·학습) 일련의 계산 과정입니다.
+
+
 AI의 MAC(Multiply-Accumulate) 연산을 흉내 내는 작은 계산기입니다.  
 입력 패턴과 Cross/X 필터를 겹쳐 점수를 내고, 더 높은 쪽을 판정합니다.
 
